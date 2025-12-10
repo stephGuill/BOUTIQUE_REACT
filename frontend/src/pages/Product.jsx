@@ -17,12 +17,19 @@ function Product() {
 
   if (!product) return <p>Chargement...</p>;
 
-  function addToCart() {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  cart.push(product);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  alert("Produit ajouté !");
-}
+  function handleAddToCart() {
+    // 1. Récupérer le panier actuel
+    const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    // 2. Ajouter le produit courant
+    const newCart = [...currentCart, product];
+
+    // 3. Sauvegarder
+    localStorage.setItem("cart", JSON.stringify(newCart));
+
+    // 4. Feedback simple
+    alert("Produit ajouté au panier");
+  }
 
 return (
     <div className="product-card">
@@ -30,7 +37,7 @@ return (
       <p>{product.description}</p>
       <h2>{product.price} €</h2>
 
-      <button onClick={addToCart}>
+      <button onClick={ handleAddToCart}>
       Ajouter au panier
       </button>
 
