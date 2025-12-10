@@ -1,47 +1,39 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./Product.css";
+
 function Product() {
-  const { id } = useParams();            // récupère l'id dans l'URL
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:3001/products`)
-      .then(res => res.json())
-      .then(data => {
-        const p = data.find(item => item.id == id);
-        setProduct(p);
+    fetch(`http://localhost:3001/products/${id}`, { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Produit introuvable");
+        return res.json();
       })
-      .catch(err => console.error("Erreur API :", err));
+      .then((data) => setProduct(data))
+      .catch((err) => setError(err.toString()));
   }, [id]);
 
+  if (error) return <p style={{ color: "red" }}>Erreur : {error}</p>;
   if (!product) return <p>Chargement...</p>;
 
   function handleAddToCart() {
-    // 1. Récupérer le panier actuel
     const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    // 2. Ajouter le produit courant
-    const newCart = [...currentCart, product];
-
-    // 3. Sauvegarder
+    const newCart = [...currentCart, product]; // immutabilité
     localStorage.setItem("cart", JSON.stringify(newCart));
-
-    // 4. Feedback simple
     alert("Produit ajouté au panier");
   }
 
-return (
+  return (
     <div className="product-card">
       <h1>{product.name}</h1>
       <p>{product.description}</p>
       <h2>{product.price} €</h2>
 
-      <button onClick={ handleAddToCart}>
-      Ajouter au panier
-      </button>
-
-      
+      <button onClick={handleAddToCart}>Ajouter au panier</button>
     </div>
   );
 }
