@@ -15,6 +15,20 @@ const express = require('express');
 
     // Chemin vers le fichier JSON des produits
     const PRODUCTS_FILE = path.join(__dirname, 'products.json'); 
+    // Chemin vers le fichier JSON des utilisateurs
+    const USERS_FILE = path.join(__dirname, 'users.json');
+
+
+    // ---------- UTIL USERS ----------
+function readUsers() {
+  try {
+    const raw = fs.readFileSync(USERS_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch (err) {
+    console.error('Erreur lecture users.json :', err);
+    return [];
+  }
+}
 
     // 🔹 Lire les produits depuis le fichier à chaque requête
 function readProducts() {
@@ -60,6 +74,26 @@ app.get('/products/:id', (req, res) => {
   }
 
   res.json(product);
+});
+
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ ok: false, message: "email et password sont obligatoires" });
+  }
+
+  const users = readUsers();
+  const user = users.find(u => u.email === email);
+
+  if (!user || user.password !== password) {
+    return res.status(401).json({ ok: false, message: "Email ou mot de passe invalide" });
+  }
+
+  return res.json({
+    ok: true,
+    user: { id: user.id, email: user.email, name: user.name }
+  });
 });
 
 // ➜ Ajouter un produit (pour plus tard si tu veux tester l’écriture)
