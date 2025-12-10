@@ -30,6 +30,10 @@ function Cart() {
         <>
           <h2>Total : {total.toFixed(2)} €</h2>
 
+          <button onClick={() => window.location.href = "/cart"}>
+            🛒 Panier
+          </button>
+
           <button
             className="clear-btn"
             onClick={() => {
