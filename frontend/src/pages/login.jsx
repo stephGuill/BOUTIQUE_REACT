@@ -1,85 +1,26 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
 
-function Login() {
-  const [email, setEmail] = useState("demo@boutique.test");
-  const [password, setPassword] = useState("secret");
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      const res = await fetch("http://localhost:3001/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.ok) {
-        throw new Error(data.message || "Erreur de connexion");
-      }
-
-      // On stocke l'utilisateur en localStorage
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Retour à l'accueil
-      navigate("/");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  if (!email || !password) {
+    return res.status(400).json({ ok: false, message: "email et password sont obligatoires" });
   }
 
-  return (
-    <div style={{ padding: "20px", maxWidth: "400px" }}>
-      <h1>Connexion</h1>
+  const users = readUsers();
+  const user = users.find(u => u.email === email);
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+  if (!user) {
+    return res.status(401).json({ ok: false, message: "Email ou mot de passe invalide" });
+  }
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "10px" }}>
-          <label>
-            Email<br />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ width: "100%" }}
-            />
-          </label>
-        </div>
+  // Vérifie le mot de passe hashé
+  const match = await bcrypt.compare(password, user.password);
 
-        <div style={{ marginBottom: "10px" }}>
-          <label>
-            Mot de passe<br />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ width: "100%" }}
-            />
-          </label>
-        </div>
+  if (!match) {
+    return res.status(401).json({ ok: false, message: "Email ou mot de passe invalide" });
+  }
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Connexion..." : "Se connecter"}
-        </button>
-      </form>
-
-      <p style={{ marginTop: "10px", fontSize: "0.9rem" }}>
-        Identifiants de test : <br />
-        <code>demo@boutique.test / secret</code>
-      </p>
-    </div>
-  );
-}
-
-export default Login;
+  return res.json({
+    ok: true,
+    user: { id: user.id, email: user.email, name: user.name }
+  });
+});

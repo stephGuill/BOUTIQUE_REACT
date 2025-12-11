@@ -3,6 +3,7 @@ const express = require('express');
     const fs = require('fs');
      //lecture écriture des fichiers JSON
     const path = require('path');
+    const bcrypt = require("bcrypt");
 
     const app = express();
     const port = 3001;
@@ -17,7 +18,10 @@ const express = require('express');
     const PRODUCTS_FILE = path.join(__dirname, 'products.json'); 
     // Chemin vers le fichier JSON des utilisateurs
     const USERS_FILE = path.join(__dirname, 'users.json');
-
+    // GÉNÉRER UN HASH POUR METTRE DANS users.json
+    // ces deux lignes sont à éffacer aprés cette action.
+    const hash = bcrypt.hashSync("secret", 10);
+    console.log("Hash du password :", hash);
 
     // ---------- UTIL USERS ----------
 function readUsers() {

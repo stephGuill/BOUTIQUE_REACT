@@ -2,7 +2,7 @@
   {
     "id": 1,
     "email": "demo@boutique.test",
-    "password": "secret",
+    "password": "$2b$10$YEYENmrnmmeHPbW9vZ5ODejFQpVY6JUaMyIQVYo3aSTDcyDdYluzq",
     "name": "Visiteur"
   }
 ]
